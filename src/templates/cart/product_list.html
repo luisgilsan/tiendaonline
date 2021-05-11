@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="py-3" style="background-color: rgb(235, 235, 235);">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 mb-0">
+                <a href="{% url 'home' %}">INICIO</a>
+                <span class="mx-2 mb-0">/</span>
+                <strong class="text-block">TIENDA</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="site-section" style="background-color: rgb(245, 245, 245);">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2 mx-auto mb-1">
+                <div class="row">
+                    <div class="col-md-12 pt-1 pb-1 rounded-top rounded-bottom" style="background-color: white;">
+                        <h3 class="h6 text-black pt-3">
+                            <strong style="font-family: 'Lato', sans-serif;">Categorias</strong>
+                            <ul class="mt-2">
+                                {% for category in categories %}
+                                <li class="mb-1">
+                                    <a style="font-family: 'Lato', sans-serif;" href="?category={{ category.name }}"class="d-flex">
+                                        <span>{{ category.name }}</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </h3>
+                        <h3 class="h6 text-black pt-3">
+                            <strong style="font-family: 'Lato', sans-serif;">Marcas</strong>
+                            <ul class="mt-2">
+                                {% for brand in brands %}
+                                <li class="mb-1">
+                                    <a style="font-family: 'Lato', sans-serif;" href="?brand={{ brand.name }}"class="d-flex">
+                                        <span>{{ brand.name }}</span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-10 mx-auto mb-1">
+                <div class="row">
+                    {% for product in object_list%}  
+                        <div class="col-md-3 pt-1 pb-1 text-center" style="position: relative;" data-aos='fade-up'>
+                            <div class="rounded-top rounded-bottom" style="background-color: white;">
+                            <br>
+                                <figure class="block-4-image">
+                                    <a href="{{ product.get_absolute_url }}"><img src="{{ product.image.url }}" class="img-fluid"></a>
+                                </figure>
+                                <div class="bloc-4-text"></div>
+                                <a style="font-family: 'Lato', sans-serif; font-size: 16px; color:black;" href="{{ product.get_absolute_url }}">{{ product.title }}</a><br><br>
+                                <a style="font-family: 'Lato', sans-serif; font-size: 20px; color:black; bottom: 0;" href="{{ product.get_absolute_url }}">${{ product.price|intcomma }} und</a>
+                            </div>
+                        </div>
+                    {% endfor %} 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+{% endblock content %}

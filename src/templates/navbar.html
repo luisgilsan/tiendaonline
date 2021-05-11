@@ -1,0 +1,25 @@
+<nav class="site-navigation text-right text-md-center" role="navigation">
+    <div class="container">
+        <ul class="site-menu js-clone-nav d-none d-md-block" style="padding: 0;">
+            <li><a href="/">INICIO</a></li>
+            <li><a href="{% url 'cart:product_list' %}">TIENDA</a></li>
+            <li><a href="{% url 'contact' %}">CONTACTO</a></li>
+            {% if request.user.is_staff %}
+                <li><a href="/">NOSOTROS</a></li>
+            {% endif %}
+        </ul>
+        <ul class="pt-3">
+            <form method="GET" action="{% url 'cart:product_list' %}">
+                {% csrf_token %}
+                <div class="input-group site-menu">
+                    <input type="text" name="search" class="form-control" placeholder="¿Qué estás buscando?">
+                    <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary" type="button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                    </div>
+                </div>
+            </form>
+        </ul>
+    </div>
+</nav>
