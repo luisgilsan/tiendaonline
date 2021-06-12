@@ -5,6 +5,7 @@ import environ
 from django.shortcuts import get_object_or_404, reverse, redirect
 import hashlib
 from sequences import get_next_value
+from datetime import datetime
 
 env = environ.Env()
 environ.Env.read_env()
@@ -20,10 +21,7 @@ class AddToCartForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.product_id = kwargs.pop('product_id')
-        # product = Product.objects.get(id=self.product_id)
         super().__init__(*args,**kwargs)
-        # self.fields['colour'].queryset = product.available_colours.all()
-        # self.fields['size'].queryset = product.available_sizes.all()
 
     def clean(self):
         product_id = self.product_id
@@ -107,12 +105,6 @@ class PayUForm(forms.Form):
     buyerEmail = forms.EmailField()
     responseUrl = forms.URLField()
     confirmationUrl = forms.URLField()
-    # buyerFullName = forms.CharField(max_length=150)
-    # shippingAddress = forms.CharField(max_length=255)
-    # shippingCity = forms.CharField(max_length=50)
-    # shippingCountry = forms.CharField(max_length=2)
-    # telephone = forms.CharField(max_length=50)
-    # ApiKey = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         print('Diccionario contexto formm')
@@ -124,7 +116,7 @@ class PayUForm(forms.Form):
         self.fields['merchantId'].initial = env('MERCHANID')
         self.fields['accountId'].initial = env('ACCOUNTID')
         self.fields['description'].initial = "Venta de prueba"
-        self.fields['referenceCode'].initial = "TEST_RSS_0000" + code_test
+        self.fields['referenceCode'].initial = "RSS_TEST_" + str(datetime.now()).replace(' ','_') + '_000' + code_test 
         self.fields['amount'].initial = order.get_raw_total()
         self.fields['tax'].initial = 0
         self.fields['taxReturnBase'].initial = 0
@@ -139,17 +131,9 @@ class PayUForm(forms.Form):
         self.fields['signature'].initial = h.hexdigest()
         self.fields['test'].initial = 1
         self.fields['buyerEmail'].initial = 'luisgilsan_007@hotmail.com'
-        self.fields['responseUrl'].initial = 'https://www.udemy.com/'
-        self.fields['confirmationUrl'].initial = 'https://www.udemy.com/'
+        self.fields['responseUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/response-payu/'
+        self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
+        order.sended_signature = self.fields['signature'].initial
+        order.sender_reference = self.fields['referenceCode'].initial
+        order.save()
         print('En el formulario')
-
-    def clean(self):
-        # self.cleaned_data['shippingCity'] = 'AQUI'
-        # self.cleaned_data['accountId'] =      
-        # self.cleaned_data['merchantId'] =         
-        
-
-        
-        
-        print(self.cleaned_data)
-        print('Ya estas vendiendo Chamo')

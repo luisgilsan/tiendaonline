@@ -1,15 +1,28 @@
 from django.views import generic
 from .utils import get_or_set_order_session
-from .models import Product, OrderItem, Address, Payment, Order, Category, Brand
+from .models import Product, OrderItem, Address, Payment, Order, Category, Brand, PayuPayment
 from .forms import AddToCartForm, AddressForm, PayUForm
 from django.shortcuts import get_object_or_404, reverse, redirect
 from django.contrib import messages
 from django.conf import settings
 from django.http import JsonResponse
-import json
-import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import HttpResponse
+
+import hashlib
+import environ
+import json
+import datetime
+import logging
+
+# logging.getLogger().setLevel(logging.INFO)
+
+env = environ.Env()
+environ.Env.read_env()
+
 
 class ProductListView(generic.ListView):
     template_name = 'cart/product_list.html'
@@ -175,10 +188,7 @@ class PaymentView(LoginRequiredMixin,generic.FormView):
     def get_form_kwargs(self):
         context = super(PaymentView, self).get_form_kwargs()
         context['user_id'] = self.request.user.id
-        context['order'] = get_or_set_order_session(self.request)
-        print('Contexto de la vista')
-        print(self.request.user.id)
-        
+        context['order'] = get_or_set_order_session(self.request)        
         return context
 
     def get_context_data(self, **kwargs):
@@ -214,3 +224,111 @@ class OrderDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = 'order.html'
     queryset = Order.objects.all()
     context_object_name = 'order'
+
+class ResponsePayUView(generic.View):
+    template_name = 'cart/thanks.html'
+
+    def get(self, request, *args, **kwargs):
+        transactionState = request.GET.get('transactionState',False)
+        polResponseCode = request.GET.get('polResponseCode',False)
+        polPaymentMethodType = request.GET.get('polPaymentMethodType',False)
+        lapResponseCode = request.GET.get('lapResponseCode',False)
+        lapTransactionState = request.GET.get('lapTransactionState',False)
+        TX_VALUE = request.GET.get('TX_VALUE',False)
+        referenceCode = request.GET.get('referenceCode',False)
+        # payment = PayuPayment(transactionState=transactionState,
+        #     polResponseCode=polResponseCode,
+        #     polPaymentMethodType=polPaymentMethodType,
+        #     lapResponseCode=lapResponseCode,
+        #     lapTransactionState=lapTransactionState,
+        #     TX_VALUE=TX_VALUE,
+        #     reponse_method='response')
+        # payment.save()
+        return redirect('cart:thanks-you')
+
+class ConfirmPayUView(generic.View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ConfirmPayUView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        print('confirmando')
+        logging.warning("Confirming payment...")
+        print('pago login')
+        self._validate_signature(request.POST)
+        print('pago validada')
+        logging.info("Payment confirmed...")
+        return HttpResponse("Payment confirmed...")
+
+    def _validate_signature(self, request_dict):
+        print('recuperando datos..')
+        state_pol = request_dict.get('state_pol',False)
+        value = request_dict.get('value',False)
+        signature = request_dict.get('sign',False)
+        reference_sale = request_dict.get('reference_sale',False)
+        print('busca pedidos..')
+        order = Order.objects.filter(sender_reference=str(reference_sale))
+        
+        if order:
+            print('Pedido encontrads..')
+            new_value = str(value)
+            new_value = round(float(new_value), 1)
+            payu_signature = env('API_KEY') + '~' + env('MERCHANID') + '~' + str(reference_sale) + \
+                '~' + str(new_value) + '~' + 'COP' + '~' + str(state_pol)
+            local_signature = hashlib.md5(payu_signature.encode('utf-8')).hexdigest()
+            print('Signature generado..')
+            if local_signature == signature and str(state_pol) == '4':
+                logging.warning("Validation was successfull. Signature received: %s" % (signature,))
+                self._create_confirmed_payment(request_dict)
+            else:
+                print('No validado...')
+                logging.warning("Payment was not approved.")
+        else:
+            print('Pedido no encontrado..')
+            logging.warning("Sell order not found.")
+
+    def _create_confirmed_payment(self,request_dict):
+        reference_sale = request_dict.get('reference_sale',False)
+        order = Order.objects.filter(sender_reference=str(reference_sale))
+        if order:
+            order = order[0]
+            state_pol = request_dict.get('state_pol',False)
+            value = request_dict.get('value',False)
+            response_code_pol = request_dict.get('response_code_pol',False)
+            payment_method_type = request_dict.get('payment_method_type',False)
+            response_message_pol = request_dict.get('response_message_pol',False)
+            payment_method_id = request_dict.get('payment_method_id',False)
+            logging.warning("Payment_method_id: %s" % (payment_method_id,))
+            payment = PayuPayment(
+                transaction_state=state_pol,
+                pol_response_code=response_code_pol,
+                pol_payment_method_type=payment_method_type,
+                payment_method_id=int(payment_method_id),
+                response_message_pol=response_message_pol,
+                value=value,
+                reponse_method='confirm')
+            payment.save()
+            order.payu_payment_id = payment
+            order.save()
+            # order.pay()
+            # order.inventory_discount()
+            print('Pago no creado...')
+            logging.warning("payment stored in database: %s" % (payment.name,))
+
+class CallConfirmPayUView(generic.View):
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ConfirmPayUView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logging.warning("Do payu post ...")
+        order_id = request.POST.get('order_id')
+        order = Order.objects.filter(id=order_id)
+        if order:
+            logging.warning("Order Found ...")
+            data = {'test':'test'}
+            url = 'https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu'
+            payu_response = requests.post(url, data=data)
+            return HttpResponse(payu_response)

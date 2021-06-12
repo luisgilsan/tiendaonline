@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-import os 
+import os
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -20,6 +20,8 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
+
+SET_DB_PRODUCTION = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -89,17 +91,28 @@ WSGI_APPLICATION = 'store.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ecommerce',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+if SET_DB_PRODUCTION:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'luisgilsan$reparacionesss',
+            'USER': 'luisgilsan',
+            'PASSWORD': 'reparacionesss2021',
+            'HOST': 'luisgilsan.mysql.pythonanywhere-services.com',
+            'PORT': '3306',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'reparacionesss',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
 
 
 # Password validation
@@ -123,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
-    
+
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 
@@ -168,7 +181,7 @@ if DEBUG is False:
     SECURE_PROCY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO','https')
 
 
-    ALLOWED_HOSTS = ["https://midominio.com"]
+    ALLOWED_HOSTS = ["http://localhost.com","http://luisgilsan.pythonanywhere.com/"]
 
     DATABASES = {
     'default': {

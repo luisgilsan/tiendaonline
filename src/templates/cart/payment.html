@@ -42,24 +42,6 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-
-            <form method="post" action="https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu/">
-                <input name="merchantId"    type="hidden"  value="508029">
-                <input name="accountId"     type="hidden"  value="512321">
-                <input name="description"   type="hidden"  value="Test PAYU Reparaciones"  >
-                <input name="referenceCode" type="hidden"  value="PAGOANGELSAN0003" >
-                <input name="amount"        type="hidden"  value="20000"   >
-                <input name="tax"           type="hidden"  value="0"  >
-                <input name="taxReturnBase" type="hidden"  value="0" >
-                <input name="currency"      type="hidden"  value="COP" >
-                <input name="signature"     type="hidden"  value="9b5fad56ab072808f71135afd6bc7a85"  >
-                <input name="test"          type="hidden"  value="1" >
-                <input name="buyerEmail"    type="hidden"  value="luisgilsan_007@hotmail.com" >
-                <input name="responseUrl"    type="hidden"  value="https://atlasrepuestos.com/" >
-                <input name="confirmationUrl"    type="hidden"  value="https://atlasrepuestos.com/" >
-                <input name="Submit"        type="submit"  value="Enviar" >
-            </form>
-
             <form method="POST" action="https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu" class="text-center">
                 {% csrf_token %}
                 <div class="p-2 p-lg-2">
@@ -67,7 +49,7 @@
                 </div>
                 <div class="row text-center">
                     <div class="form-group text-center">
-                        <input type="image" name="submit" src="https://ecommerce.payulatam.com/img-secure-2015/boton_pagar_grande.png" border="0" alt="Submit" style="width: 300px;" />
+                        <input type="image" name="submit" src="https://ecommerce.payulatam.com/img-secure-2015/boton_pagar_grande.png" border="0" alt="Submit" style="width: 250px;" />
                     </div>
                 </div>
             </form>
@@ -83,17 +65,20 @@
             <div class="text-center py-3">
                 <div id="loader" class="lds-hourglass" style="margin: auto; display:none;"></div>
             </div>
-            
-            <div id="paymentInfo">
-                <p>El total del pedido: ${{ order.get_total }}</p>
-                <h4>Seleccione un metodo de pago</h4>
-            </div>
-            <div class="container text-center py-3">
-                <img src="{% static 'images/botonpayu.png' %}" style="max-width: 300px;" alt="Snow"/>
-                <button class="btn">Pagar</button>
-              </div>
-            <div id="paypal-button-container">
-            </div>
+            <!-- 
+            {# 
+                <div id="paymentInfo">
+                    <p>El total del pedido: ${{ order.get_total }}</p>
+                    <h4>Seleccione un metodo de pago</h4>
+                </div>
+                <div class="container text-center py-3">
+                    <img src="{% static 'images/botonpayu.png' %}" style="max-width: 300px;" alt="Snow"/>
+                    <button class="btn">Pagar</button>
+                </div>
+                <div id="paypal-button-container">
+                </div>
+            #}
+             -->
         </div>
         
     </div>
@@ -101,6 +86,7 @@
 
 
 {% endblock content %}
+
 
 {% block scripts %}
     <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}">

@@ -13,5 +13,8 @@ urlpatterns = [
     path('payment/', views.PaymentView.as_view(),name='payment'),
     path('thanks/', views.ThankYouView.as_view(),name='thanks-you'),
     path('confirm-order/', views.ConfirmOrderView.as_view(),name='confirm-order'),
+    path('response-payu/', views.ResponsePayUView.as_view(),name='response-payu'),
+    path('confirm-payu/', views.ConfirmPayUView.as_view(),name='confirm-payu'),
+    path('call-confirm-payu/', views.CallConfirmPayUView.as_view(),name='call-confirm-payu'),
     path('orders/<pk>/', views.OrderDetailView.as_view(),name='order-detail'),
 ]
