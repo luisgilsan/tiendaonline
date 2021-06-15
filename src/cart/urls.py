@@ -17,4 +17,6 @@ urlpatterns = [
     path('confirm-payu/', views.ConfirmPayUView.as_view(),name='confirm-payu'),
     path('call-confirm-payu/', views.CallConfirmPayUView.as_view(),name='call-confirm-payu'),
     path('orders/<pk>/', views.OrderDetailView.as_view(),name='order-detail'),
+    path('orders_list', views.OrderList.as_view(),name='orders-list'),
+    path('order/<pk>/', views.OrderDetail.as_view(),name='order-detail'),
 ]

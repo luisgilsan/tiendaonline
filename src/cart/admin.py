@@ -6,6 +6,7 @@ from .models import (
     ColourVariation,
     SizeVariation,
     Address,
+    PayuPayment,
     Payment,
     Category,
     DataSheet,
@@ -28,6 +29,7 @@ admin.site.register(ColourVariation)
 admin.site.register(SizeVariation)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(Payment)
+admin.site.register(PayuPayment)
 admin.site.register(Category)
 admin.site.register(DataSheet)
 admin.site.register(Brand)

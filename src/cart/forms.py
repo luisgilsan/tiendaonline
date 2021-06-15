@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, reverse, redirect
 import hashlib
 from sequences import get_next_value
 from datetime import datetime
+from django.conf import settings
 
 env = environ.Env()
 environ.Env.read_env()
@@ -50,9 +51,7 @@ class AddressForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        user_id = kwargs.pop('user_id')
-        # if not user_id:            
-        # raise forms.ValidationError(f'Debe iniciar sesión para terminar la compra') 
+        user_id = kwargs.pop('user_id') 
         super().__init__(*args, **kwargs)
         user = User.objects.get(id=user_id)
         print(user)
@@ -108,14 +107,45 @@ class PayUForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         print('Diccionario contexto formm')
-        user_id = kwargs.pop('user_id')
+        user = kwargs.pop('user')
         order = kwargs.pop('order')
         super().__init__(*args, **kwargs)
+        if settings.PRODUCTION:
+            self._prepare_production_form(order,user)
+        else:
+            self._prepare_test_form(order,user)
 
-        code_test = str(get_next_value("test_fake_2"))
+    def _prepare_test_form(self,order,user):
+        code_test = str(get_next_value("sale_test_2"))
+        self.fields['merchantId'].initial = env('MERCHANID_SANDBOX')
+        self.fields['accountId'].initial = env('ACCOUNTID_SANDBOX')
+        self.fields['description'].initial = "Venta de prueba"
+        self.fields['referenceCode'].initial = "RSS_TEST_" + str(datetime.now()).replace(' ','_') + '_000' + code_test 
+        self.fields['amount'].initial = order.get_raw_total()
+        self.fields['tax'].initial = 0
+        self.fields['taxReturnBase'].initial = 0
+        self.fields['currency'].initial = 'COP'
+        text_signature = env('API_KEY_SANDBOX') + '~' + env('MERCHANID') + '~' + self.fields['referenceCode'].initial + \
+            '~' + str(order.get_raw_total()) + '~' + 'COP'
+        h = hashlib.md5()
+        h.update(text_signature.encode('utf-8'))
+        print('Cadena:  ' + text_signature)
+        print(h.hexdigest())
+
+        self.fields['signature'].initial = h.hexdigest()
+        self.fields['test'].initial = 1
+        self.fields['buyerEmail'].initial = user.email
+        self.fields['responseUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/response-payu/'
+        self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
+        order.sended_signature = self.fields['signature'].initial
+        order.sender_reference = self.fields['referenceCode'].initial
+        order.save()
+
+    def _prepare_production_form(self,order,user):
+        code_test = str(get_next_value("sale_2"))
         self.fields['merchantId'].initial = env('MERCHANID')
         self.fields['accountId'].initial = env('ACCOUNTID')
-        self.fields['description'].initial = "Venta de prueba"
+        self.fields['description'].initial = "Venta de productos RSS"
         self.fields['referenceCode'].initial = "RSS_TEST_" + str(datetime.now()).replace(' ','_') + '_000' + code_test 
         self.fields['amount'].initial = order.get_raw_total()
         self.fields['tax'].initial = 0
@@ -129,11 +159,10 @@ class PayUForm(forms.Form):
         print(h.hexdigest())
 
         self.fields['signature'].initial = h.hexdigest()
-        self.fields['test'].initial = 1
-        self.fields['buyerEmail'].initial = 'luisgilsan_007@hotmail.com'
+        self.fields['test'].initial = 0
+        self.fields['buyerEmail'].initial = user.email
         self.fields['responseUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/response-payu/'
         self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
         order.sended_signature = self.fields['signature'].initial
         order.sender_reference = self.fields['referenceCode'].initial
         order.save()
-        print('En el formulario')

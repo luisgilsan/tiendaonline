@@ -18,7 +18,7 @@ import json
 import datetime
 import logging
 
-# logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.INFO)
 
 env = environ.Env()
 environ.Env.read_env()
@@ -87,7 +87,6 @@ class ProductDetailView(generic.FormView):
             new_item.save()
         return super(ProductDetailView,self).form_valid(form)
 
-
     def get_context_data(self, **kwargs):
         context = super(ProductDetailView,self).get_context_data(**kwargs)
         context['product'] = self.get_object()
@@ -99,6 +98,31 @@ class CartView(generic.TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(CartView,self).get_context_data(**kwargs)
         context["order"] = get_or_set_order_session(self.request)
+        return context
+
+class OrderList(generic.TemplateView):
+    template_name = 'cart/order_detail.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CartView,self).get_context_data(**kwargs)
+        orders = Order.objects.filter(user_id=self.request.user)
+        context["orders"] = orders
+        return context
+
+class OrderDetail(generic.TemplateView):
+    template_name = 'cart/order_list.html'
+
+    def get_object(self):
+        return get_object_or_404(Order, pk=self.kwargs["pk"])
+
+    def get_form_kwargs(self):
+        kwargs = super(ProductDetailView,self).get_form_kwargs()
+        kwargs['order'] = self.get_object().id
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductDetailView,self).get_context_data(**kwargs)
+        context['product'] = self.get_object()
         return context
 
 class IncreaseQuantityView(generic.View):
@@ -188,6 +212,7 @@ class PaymentView(LoginRequiredMixin,generic.FormView):
     def get_form_kwargs(self):
         context = super(PaymentView, self).get_form_kwargs()
         context['user_id'] = self.request.user.id
+        context['user'] = self.request.user
         context['order'] = get_or_set_order_session(self.request)        
         return context
 
@@ -219,11 +244,6 @@ class ConfirmOrderView(generic.View):
         return JsonResponse({"data":"Success"})
 
     template_name = 'cart/thanks.html'
-
-class OrderDetailView(LoginRequiredMixin, generic.DetailView):
-    template_name = 'order.html'
-    queryset = Order.objects.all()
-    context_object_name = 'order'
 
 class ResponsePayUView(generic.View):
     template_name = 'cart/thanks.html'
@@ -311,10 +331,8 @@ class ConfirmPayUView(generic.View):
             payment.save()
             order.payu_payment_id = payment
             order.save()
-            # order.pay()
-            # order.inventory_discount()
-            print('Pago no creado...')
-            logging.warning("payment stored in database: %s" % (payment.name,))
+            order.pay()
+            logging.warning("payment stored in database: %s. Order closed %s" % (payment.name, order.id))
 
 class CallConfirmPayUView(generic.View):
     

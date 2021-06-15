@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
+PRODUCTION = env('PRODUCTION')
 
 SET_DB_PRODUCTION = True
 

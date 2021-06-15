@@ -140,6 +140,10 @@ class Product(models.Model):
     def get_price(self):
         return "{:-2f}".format(self.price/100)
 
+    def _discount_qty(self,qty):
+        self.stock -= qty
+        self.save()
+    
     @property
     def in_stock(self):
         return self.stock > 0
@@ -182,6 +186,7 @@ class Order(models.Model):
     payu_payment_id = models.ForeignKey("PayuPayment",related_name='order_id',on_delete=models.SET_NULL,
         blank=True,null=True)
     state = models.CharField(max_length=20, choices=ORDER_STATES, default='draft')
+    
 
     def __str__(self):
         return self.reference_number
@@ -211,11 +216,12 @@ class Order(models.Model):
     def pay(self):
         self.state = 'paid'
         self.inventory_discount()
+        self.save()
 
     def inventory_discount(self):
-        for item in self.items:
-            item.product.stock -= item.quantity
-
+        for item in self.items.all():
+            item.product._discount_qty(item.quantity)
+            
 class PayuPayment(models.Model):
 
     name = models.CharField(max_length=255,blank=True,null=True,default='PAYU-PAYMENT-00' + str(get_next_value("payment_secuence")))
