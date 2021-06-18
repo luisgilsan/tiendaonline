@@ -108,6 +108,7 @@ class PayUForm(forms.Form):
     def __init__(self, *args, **kwargs):
         print('Diccionario contexto formm')
         user = kwargs.pop('user')
+        user_id = kwargs.pop('user_id')
         order = kwargs.pop('order')
         super().__init__(*args, **kwargs)
         if settings.PRODUCTION:

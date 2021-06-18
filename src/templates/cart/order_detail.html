@@ -13,21 +13,107 @@
     </div>
 </div>
 
-<div class="site-section" style="background-color: rgb(245, 245, 245);">
-    <div class="container mb-4">
-        {% for order in orders|dictsort:"id" reversed%}
-          <div class="row mt-3">
-            <div class="col-md-9 mx-auto">
-              <h2 class="mb-4">Pedido No. {{order}}</h2>
-              <h2 class="mb-4">Comprado el: 2020/20/20</h2>
-              <h2 class="mb-4" style="color: green;">{{order.state}}</h2>
-              <div>
-                <a href="{% url 'cart:order_detail' order.id %}">Ver pedido</a>
-              </div>
-              <h3 class="mb-4"><b>Valor total {{order.get_total}}</b></h3>
+<div class="site-section" style="background-color: rgb(255, 255, 255);">
+    <div class="container">
+        <div class="container">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <b>Pedido # {{order}}</b><br/>
+                        Fecha de compra: 2020/20/20<br/>
+                        Valor total {{order.get_total}}<br/>
+                        Estado # {{order.state}}<br/>
+                    </div>
+                    <div class="site-blocks-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td class="product-thumbnail">
+                                        <img src="{{ item.product.image.url }}" class="img-fluid">
+                                    </td>
+                                    <td class="product-name">
+                                        <h2 class="h5 text-black">{{item.product.title}}</h2>
+                                        <small>Tamaño: {{ item.size.name }}</small>
+                                        <small>Color: {{ item.colour.name }}</small>
+                                    </td>
+                                    <td>${{item.product.get_price}}</td>
+                                    <td>
+                                        <div class="input-group mb-3" style="max-width: 120px;">
+                                            <input type="text" class="form-control text-center"
+                                                value="{{ item.quantity}}" readonly>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        ${{item.get_total_item_price}}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6">
+                                        No hay productos en tu carro! <a href="{% url 'cart:product_list' %}">Compra productos aquí</a>
+                                    </td>
+                                </tr>
+                                {% endfor%}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>                  
             </div>
-          </div>
-        {% endfor %}
+            {% if order.items.count > 0 %}
+            <div class="row">
+                <div class="col-md-6 pl-5">
+                    <div class="row justify-content-end">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12 text-right border-bottom mb-5">
+                                    <h3 class="text-black h4 text-uppercase">Totales</h3>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <span class="text-black">Subtotal</span>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <strong class="text-black">${{ order.get_subtotal }}</strong>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-6">
+                                    <span class="text-black">Total</span>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <strong class="text-black">${{ order.get_total }}</strong>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-6">
+                                    <span class="text-black">Total</span>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <strong class="text-black">$Total</strong>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-12">
+                                    <a href="{% url 'cart:checkout' %}" class="btn btn-warning btn-lg py-3 btn-block">Proceder al pago</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
       </div>
 </div>
     

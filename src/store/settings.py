@@ -22,7 +22,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 PRODUCTION = env('PRODUCTION')
 
-SET_DB_PRODUCTION = True
+SET_DB_PRODUCTION = False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/

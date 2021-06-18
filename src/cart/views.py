@@ -100,29 +100,34 @@ class CartView(generic.TemplateView):
         context["order"] = get_or_set_order_session(self.request)
         return context
 
-class OrderList(generic.TemplateView):
-    template_name = 'cart/order_detail.html'
+class OrderList(LoginRequiredMixin,generic.TemplateView):
+    template_name = 'cart/order_list.html'
 
     def get_context_data(self, *args, **kwargs):
-        context = super(CartView,self).get_context_data(**kwargs)
+        context = super(OrderList,self).get_context_data(**kwargs)
         orders = Order.objects.filter(user_id=self.request.user)
         context["orders"] = orders
         return context
 
-class OrderDetail(generic.TemplateView):
-    template_name = 'cart/order_list.html'
+    def get_success_url(self):
+        return reverse("cart:orders-list")
+
+class OrderDetail(LoginRequiredMixin,generic.TemplateView):
+    template_name = 'cart/order_detail.html'
 
     def get_object(self):
         return get_object_or_404(Order, pk=self.kwargs["pk"])
 
     def get_form_kwargs(self):
-        kwargs = super(ProductDetailView,self).get_form_kwargs()
-        kwargs['order'] = self.get_object().id
+        kwargs = super(OrderDetail,self).get_form_kwargs()
+        kwargs['order'] = self.get_object()
+        print('kwargs detail')
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(ProductDetailView,self).get_context_data(**kwargs)
-        context['product'] = self.get_object()
+        context = super(OrderDetail,self).get_context_data(**kwargs)
+        context['order'] = self.get_object()
+        print('kwargs detail')
         return context
 
 class IncreaseQuantityView(generic.View):

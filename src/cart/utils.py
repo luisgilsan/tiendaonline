@@ -7,8 +7,9 @@ def get_or_set_order_session(request):
         order = Order()
         order.save()
         request.session['order_id'] = order.id
+        print('Orden generada')
     else: 
-        order = Order.objects.filter(id=order_id, ordered=False,state='draft')
+        order = Order.objects.filter(id=order_id, ordered=False,state='draft')            
         print('Orden en prev')
         print(order)
         print(len(order))
@@ -19,10 +20,8 @@ def get_or_set_order_session(request):
             print('Envontro en cath:')
             print(order)
             return order
-
-    # if request.user.is_authenticated and order.user is None:
-    #     order.user= request.user
-    #     order.save()
-    if order:
-        return order.first()
+        else:
+            order = order.first()
+    print('Tipo de dato')
+    print(str(type(order)))
     return order
