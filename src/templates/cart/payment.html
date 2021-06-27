@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
+{% load humanize %}
 
 {% block content %}
 
@@ -40,123 +41,48 @@
 </style>
 
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <form method="POST" action="https://sandbox.checkout.payulatam.com/ppp-web-gateway-payu" class="text-center">
+        
+    <div class="col-md-8 offset-md-2">
+        
+        <b>Resumen del pedido:</b><br><br>
+        Ciudad de entrega: <b>{{ order.shipping_address.city}}</b><br>
+        Direccion de entrega: <b>{{ order.shipping_address.address_line_1}}</b><br> 
+        Valor total a pagar: $<b>{{ order.get_raw_total|intcomma}}</b><br>
+        <br>
+        
+        <p><b>Paga de manera segura con PayU:</b></p>
+         
+            <form method="POST" action="{{ urlpay }}" class="text-center">
                 {% csrf_token %}
                 <div class="p-2 p-lg-2">
-                    {{ form|crispy}}
+                    {{ form.merchantId.as_hidden }}
+                    {{ form.accountId.as_hidden }}
+                    {{ form.description.as_hidden }}
+                    {{ form.referenceCode.as_hidden }}
+                    {{ form.amount.as_hidden }}
+                    {{ form.tax.as_hidden }}
+                    {{ form.taxReturnBase.as_hidden }}
+                    {{ form.currency.as_hidden }}
+                    {{ form.signature.as_hidden }}
+                    {{ form.test.as_hidden }}
+                    {{ form.buyerEmail.as_hidden }}
+                    {{ form.responseUrl.as_hidden }}
+                    {{ form.confirmationUrl.as_hidden }}
                 </div>
                 <div class="row text-center">
-                    <div class="form-group text-center">
-                        <input type="image" name="submit" src="https://ecommerce.payulatam.com/img-secure-2015/boton_pagar_grande.png" border="0" alt="Submit" style="width: 250px;" />
+                    <div class="form-group text-center" style="display:block;margin:auto;">
+                        <input type="image" data-aos='fade-up' name="submit" src="{% static 'images/payupay.png' %}" alt="Submit" style="width: 250px;" />
                     </div>
+                    <button class="btn btn-success btn-lg py-3 btn-block" type="submit">
+                        Proceder al pago
+                    </button>
                 </div>
             </form>
+         
 
-            <div class="alert alert-success" role="alert" id="alertSuccess" style="display: none;">
-                Tu pago fue exitoso.
-            </div>
-            <div class="alert alert-danger" role="alert" id="alertFaileru" style="display: none;">
-                Tu pago ha fallado, intenta de nuevo.
-            </div>
-
-
-            <div class="text-center py-3">
-                <div id="loader" class="lds-hourglass" style="margin: auto; display:none;"></div>
-            </div>
-            <!-- 
-            {# 
-                <div id="paymentInfo">
-                    <p>El total del pedido: ${{ order.get_total }}</p>
-                    <h4>Seleccione un metodo de pago</h4>
-                </div>
-                <div class="container text-center py-3">
-                    <img src="{% static 'images/botonpayu.png' %}" style="max-width: 300px;" alt="Snow"/>
-                    <button class="btn">Pagar</button>
-                </div>
-                <div id="paypal-button-container">
-                </div>
-            #}
-             -->
-        </div>
-        
     </div>
+        
 </div>
 
 
 {% endblock content %}
-
-
-{% block scripts %}
-    <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}">
-    </script>
-    <script>
-
-        const loader = document.getElementById('loader');
-        const paymentInfo = document.getElementById('paymentInfo');
-
-        function toggleLoader(on){
-            loader.style.display = on === true ? "block" : "none";
-            paymentInfo.style.display = on === true ? "none" : "block";
-        }
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        const csrftoken = getCookie('csrftoken');
-
-        function sendOrderConfirmed() {
-            return fetch("{% url 'cart:confirm-order' %}", {
-                method: "post",
-                body: JSON.stringify(details),
-                headers: {
-                    "Content-Type" : "application/json",
-                    "X-CSRFToken" : csrftoken
-                }
-            })
-        }
-
-        paypal.Buttons({
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: '{{ order.get_total }}'
-                        }
-                    }]
-                });
-            },
-            onApprove: function(data, actions) {
-                toggleLoader(true);
-                return actions.order.capture().then(function(details) {
-                    sendOrderConfirmed(details).then(res => {
-                        toggleLoader(false);
-                        const alertSuccess = document.getElementById('alertSuccess');
-                        alertSuccess.style.display = "block";
-                        setTimeout(function(){
-                            window.location.replace('{{ CALLBACK_URL }}')
-                        },3000);
-                    })
-                })
-                    .catch(err => {
-                    const alertFaileru = document.getElementById('alertFaileru');
-                    alertSuccess.style.display = "block";
-                    })
-                    .finally(() => toggleLoader(false));
-            }
-        }).render('#paypal-button-container')
-    </script>
-{% endblock scripts %}

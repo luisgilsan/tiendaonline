@@ -5,7 +5,7 @@ import environ
 from django.shortcuts import get_object_or_404, reverse, redirect
 import hashlib
 from sequences import get_next_value
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 
 env = environ.Env()
@@ -14,7 +14,7 @@ environ.Env.read_env()
 class AddToCartForm(forms.ModelForm):
     # colour = forms.ModelChoiceField(queryset=ColourVariation.objects.none())
     # size = forms.ModelChoiceField(queryset=SizeVariation.objects.none())
-    quantity = forms.IntegerField(min_value=1)
+    quantity = forms.IntegerField(min_value=1, label="Cantidad")
 
     class Meta:
         model = OrderItem
@@ -32,21 +32,12 @@ class AddToCartForm(forms.ModelForm):
             raise forms.ValidationError(f'El maximo stock disponible es {product.stock}')
 
 class AddressForm(forms.Form):
-    shipping_address_line_1 = forms.CharField(required=False)
-    shipping_address_line_2 = forms.CharField(required=False)
-    shipping_zip_code = forms.CharField(required=False)
-    shipping_city = forms.CharField(required=False)
-
-    billing_address_line_1 = forms.CharField(required=False)
-    billing_address_line_2 = forms.CharField(required=False)
-    billing_zip_code = forms.CharField(required=False)
-    billing_city = forms.CharField(required=False)
+    shipping_address_line_1 = forms.CharField(required=False, label="Dirección")
+    shipping_address_line_2 = forms.CharField(required=False, label="Dirección 2 (opcional)")
+    shipping_zip_code = forms.CharField(required=False, label="Ciudad")
+    shipping_city = forms.CharField(required=False, label="Código postal")
 
     selected_shipping_address = forms.ModelChoiceField(
-        Address.objects.none(),required=False
-    )
-
-    selected_billing_address = forms.ModelChoiceField(
         Address.objects.none(),required=False
     )
 
@@ -64,7 +55,6 @@ class AddressForm(forms.Form):
             address_type='B'
         )
         self.fields['selected_shipping_address'].queryset = shipping_address_qs
-        self.fields['selected_billing_address'].queryset = billing_address_qs
 
     def clean(self):
         data = self.cleaned_data
@@ -79,15 +69,6 @@ class AddressForm(forms.Form):
             if not data.get('shipping_city', None):
                 self.add_error('shipping_city', "Por favor llene este campo")
         selected_billing_address = data.get('selected_billing_address',None)
-        if selected_billing_address is None:
-            if not data.get('billing_address_line_1', None):
-                self.add_error('billing_address_line_1', "Por favor llene este campo")
-            if not data.get('billing_address_line_2', None):
-                self.add_error('billing_address_line_2', "Por favor llene este campo")
-            if not data.get('billing_zip_code', None):
-                self.add_error('billing_zip_code', "Por favor llene este campo")
-            if not data.get('billing_city', None):
-                self.add_error('billing_city', "Por favor llene este campo")
             
 class PayUForm(forms.Form):
 
@@ -106,7 +87,6 @@ class PayUForm(forms.Form):
     confirmationUrl = forms.URLField()
 
     def __init__(self, *args, **kwargs):
-        print('Diccionario contexto formm')
         user = kwargs.pop('user')
         user_id = kwargs.pop('user_id')
         order = kwargs.pop('order')
@@ -118,21 +98,21 @@ class PayUForm(forms.Form):
 
     def _prepare_test_form(self,order,user):
         code_test = str(get_next_value("sale_test_2"))
-        self.fields['merchantId'].initial = env('MERCHANID_SANDBOX')
+        merchantId = env('MERCHANID_SANDBOX')
+        self.fields['merchantId'].initial = merchantId
         self.fields['accountId'].initial = env('ACCOUNTID_SANDBOX')
         self.fields['description'].initial = "Venta de prueba"
-        self.fields['referenceCode'].initial = "RSS_TEST_" + str(datetime.now()).replace(' ','_') + '_000' + code_test 
+        self.fields['referenceCode'].initial = "RSS_TEST_" + str(datetime.now() - timedelta(hours=5)).replace(' ','-') + '_000' + code_test 
         self.fields['amount'].initial = order.get_raw_total()
         self.fields['tax'].initial = 0
         self.fields['taxReturnBase'].initial = 0
         self.fields['currency'].initial = 'COP'
-        text_signature = env('API_KEY_SANDBOX') + '~' + env('MERCHANID') + '~' + self.fields['referenceCode'].initial + \
+        text_signature = env('API_KEY_SANDBOX') + '~' + merchantId + '~' + self.fields['referenceCode'].initial + \
             '~' + str(order.get_raw_total()) + '~' + 'COP'
         h = hashlib.md5()
         h.update(text_signature.encode('utf-8'))
         print('Cadena:  ' + text_signature)
         print(h.hexdigest())
-
         self.fields['signature'].initial = h.hexdigest()
         self.fields['test'].initial = 1
         self.fields['buyerEmail'].initial = user.email
@@ -140,6 +120,9 @@ class PayUForm(forms.Form):
         self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
         order.sended_signature = self.fields['signature'].initial
         order.sender_reference = self.fields['referenceCode'].initial
+        order.user = user
+        print('Useuario de la compra:')
+        print(user.id)
         order.save()
 
     def _prepare_production_form(self,order,user):
@@ -166,4 +149,5 @@ class PayUForm(forms.Form):
         self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
         order.sended_signature = self.fields['signature'].initial
         order.sender_reference = self.fields['referenceCode'].initial
+        order.user = user
         order.save()

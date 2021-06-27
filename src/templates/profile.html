@@ -1,18 +1,20 @@
 {% extends "base.html" %}
+{% load humanize%}
 
 {% block content %}
 <div class="site-sectino">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-m-12">
-                <h2 class="text-black">Your Profile</h2>
+                <h2 class="text-black">Tu perfil.</h2>
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ request.user }}</h5>
-                        <a href="{% url 'account_logout' %}"><small class="float-right">Logout</small></a>
+                        <h5 class="card-title">Nombre de usuario: {{ request.user }}</h5>
+                        <h5 class="card-title">Email: {{ request.user.email }}</h5>
+                        <a href="{% url 'account_logout' %}"><small class="float-right">Cerrar sesión</small></a>
                     </div>
                     <hr />
-                    <h5 class="card-title">Your Orders</h5>
+                    <h5 class="card-title">Tus pedidos</h5>
                     <div class="site-blocks-table">
                         <table class="table">
                             <thead>
@@ -20,15 +22,17 @@
                                     <th>Referencia No.</th>
                                     <th>Fecha</th>
                                     <th>Monto</th>
-                                    <th>Estado de pago</th>
+                                    <th colspan="2">Estado de pago</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for order in orders %}
+                                {% for order in all_orders %}
                                 <tr>
-                                    <a href="{% url 'cart:order-detail' order.pk %}"><td>#{{ order.reference_number }}</td></a>
+                                    <td>#{{ order.reference_number }}</td>
                                     <td>{{ order.ordered_date }}</td>
-                                    <td>{{ order.get_total }}<td>{% if order.ordered %}Pagada{% else %}No pagada{% endif %}</td>
+                                    <td>$. {{ order.get_total | intcomma }}</td>
+                                    <td>{% if order.ordered %}Pagada{% else %}No pagada{% endif %}</td>
+                                    <td><a class="btn btn-outline-success float-right" href="{% url 'cart:order-detail' order.pk %}" role="button">Ver pedido</a></td>
                                 </tr>
                                 {% empty %}
                                 <tr>

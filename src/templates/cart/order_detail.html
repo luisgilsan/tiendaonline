@@ -21,8 +21,8 @@
                     <div class="card-header">
                         <b>Pedido # {{order}}</b><br/>
                         Fecha de compra: 2020/20/20<br/>
-                        Valor total {{order.get_total}}<br/>
-                        Estado # {{order.state}}<br/>
+                        Valor total $ {{order.get_total | intcomma}}<br/>
+                        Estado: <b style="color: green;">{{order.get_state_display}}</b><br/>
                     </div>
                     <div class="site-blocks-table">
                         <table>
@@ -46,73 +46,47 @@
                                         <small>Tamaño: {{ item.size.name }}</small>
                                         <small>Color: {{ item.colour.name }}</small>
                                     </td>
-                                    <td>${{item.product.get_price}}</td>
+                                    <td>${{item.product.get_price | intcomma }}</td>
                                     <td>
-                                        <div class="input-group mb-3" style="max-width: 120px;">
-                                            <input type="text" class="form-control text-center"
-                                                value="{{ item.quantity}}" readonly>
-                                        </div>
+                                        {{ item.quantity }}
                                     </td>
                                     <td>
-                                        ${{item.get_total_item_price}}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6">
-                                        No hay productos en tu carro! <a href="{% url 'cart:product_list' %}">Compra productos aquí</a>
+                                        ${{item.get_total_item_price|intcomma}}
                                     </td>
                                 </tr>
                                 {% endfor%}
+                                <tr>
+                                    <td colspan="4">
+                                    </td>
+                                    <td colspan="1">
+                                        <b>RESUMEN DE PAGO</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                    </td>
+                                    <td colspan="1">
+                                        <b>SUBOTAL</b>
+                                    </td>
+                                    <td colspan="1">
+                                        ${{ order.get_subtotal|intcomma }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3">
+                                    </td>
+                                    <td colspan="1">
+                                        <b>TOTAL</b>
+                                    </td>
+                                    <td colspan="1">
+                                        ${{ order.get_total|intcomma }}
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>                  
             </div>
-            {% if order.items.count > 0 %}
-            <div class="row">
-                <div class="col-md-6 pl-5">
-                    <div class="row justify-content-end">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-12 text-right border-bottom mb-5">
-                                    <h3 class="text-black h4 text-uppercase">Totales</h3>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <span class="text-black">Subtotal</span>
-                                </div>
-                                <div class="col-md-6 text-right">
-                                    <strong class="text-black">${{ order.get_subtotal }}</strong>
-                                </div>
-                            </div>
-                            <div class="row mb-5">
-                                <div class="col-md-6">
-                                    <span class="text-black">Total</span>
-                                </div>
-                                <div class="col-md-6 text-right">
-                                    <strong class="text-black">${{ order.get_total }}</strong>
-                                </div>
-                            </div>
-                            <div class="row mb-5">
-                                <div class="col-md-6">
-                                    <span class="text-black">Total</span>
-                                </div>
-                                <div class="col-md-6 text-right">
-                                    <strong class="text-black">$Total</strong>
-                                </div>
-                            </div>
-                            <div class="row mb-5">
-                                <div class="col-md-12">
-                                    <a href="{% url 'cart:checkout' %}" class="btn btn-warning btn-lg py-3 btn-block">Proceder al pago</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
       </div>
 </div>

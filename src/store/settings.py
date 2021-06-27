@@ -20,9 +20,9 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
-PRODUCTION = env('PRODUCTION')
+PRODUCTION = False
 
-SET_DB_PRODUCTION = False
+SET_DB_PRODUCTION = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -30,9 +30,23 @@ SET_DB_PRODUCTION = False
 
 ALLOWED_HOSTS = ['*']
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-NOTIFY_EMAIL = env('NOTIFY_EMAIL')
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+# NOTIFY_EMAIL = env('NOTIFY_EMAIL')
+# DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+# NOTIFY_EMAIL = env('NOTIFY_EMAIL')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.rubbergranulate.com.co'
+EMAIL_USE_TLS = False
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'informacion@rubbergranulate.com.co'
+EMAIL_HOST_PASSWORD = 'Rubber#2020'
+
+DEFAULT_FROM_EMAIL = 'informacion@rubbergranulate.com.co'
+NOTIFY_EMAIL = 'luisgilsan_007@hotmail.com'
+
+
 PAYPAL_CLIENT_ID = env('PAYPAL_SANDBOX_CLIENT_ID')
 PAYPAL_SECRET_KEY = env('PAYPAL_SANDBOX_SECRET_KEY')
 
@@ -153,7 +167,7 @@ LOGIN_REDIRECT_URL = '/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'UTC'
 

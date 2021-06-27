@@ -20,10 +20,25 @@ class AddressAdmin(admin.ModelAdmin):
         'zip_code',
         'city',
         'address_type'
-    ]
+    ]   
 
-admin.site.register(Product)
-admin.site.register(Order)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = [        
+        'title',
+        'descripcion',
+        'price',
+    ]
+    search_fields = ['title']
+    readonly_fields = ['created', 'update']
+
+class OrderAdmin(admin.ModelAdmin):
+    readonly_fields = ('created_at', 'updated_at', )
+
+class DataSheetAdmin(admin.ModelAdmin):
+    search_fields = ['product_id__title']
+
+admin.site.register(Product,ProductAdmin)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem)
 admin.site.register(ColourVariation)
 admin.site.register(SizeVariation)
@@ -31,5 +46,5 @@ admin.site.register(Address, AddressAdmin)
 admin.site.register(Payment)
 admin.site.register(PayuPayment)
 admin.site.register(Category)
-admin.site.register(DataSheet)
+admin.site.register(DataSheet,DataSheetAdmin)
 admin.site.register(Brand)

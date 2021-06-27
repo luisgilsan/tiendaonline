@@ -4,8 +4,9 @@
             <li><a href="/">INICIO</a></li>
             <li><a href="{% url 'cart:product_list' %}">TIENDA</a></li>
             <li><a href="{% url 'contact' %}">CONTACTO</a></li>
-            {% if request.user.is_staff %}
-                <li><a href="/">NOSOTROS</a></li>
+            <li><a href="/">NOSOTROS</a></li>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'cart:orders-list' %}">MIS PEDIDOS</a></li>
             {% endif %}
         </ul>
         <ul class="pt-3">

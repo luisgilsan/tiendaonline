@@ -10,7 +10,7 @@ def get_or_set_order_session(request):
         print('Orden generada')
     else: 
         order = Order.objects.filter(id=order_id, ordered=False,state='draft')            
-        print('Orden en prev')
+        print('Orden econtrada')
         print(order)
         print(len(order))
         if len(order) == 0:

@@ -4,8 +4,6 @@
 <style>
   .container .card-order{
     margin-top: 15px;
-    color:black;
-    max-width: 500px;
   }
   
 </style>
@@ -24,28 +22,31 @@
 
 <div style="background-color: rgb(255, 255, 255);">
     <div class="container">
+      <div class="row">
       {% for order in orders|dictsort:"id" reversed%}
-
-        <div class="card card-order">
-          <div class="card-header">
-              <b> Pedido # {{order}}</b> - Fecha de compra: 2021/06/18 
-          </div>
-          <div class="card-body">
-
-            {% for item in order.items.all %}
-              <div class="container">
-                  <img src="{{ item.product.image.url }}" 
-                      class="img-thumbnail float-left" style="max-width: 100px;">
-                      {{item.product.title}}
+          <div class="col-md-6">
+            <div class="card card-order">
+              <div class="card-header">
+                <b>Pedido {{order}} - Comprado hace: {{order.payu_payment_id.utc_purchase_date|timesince}}  </b>
               </div>
-            {% endfor %}
+              
+
+                {% for item in order.items.all %}
+                  <div class="container">
+                      <img src="{{ item.product.image.url }}" 
+                          class="img-thumbnail float-left" style="max-width: 100px;">
+                          {{item.product.title}}
+                  </div>
+                {% endfor %}
+              
+              <div class="card-footer text-muted">
+                <b>Valor total ${{order.get_total|intcomma}}</b>
+                <a class="btn btn-outline-success float-right" href="{% url 'cart:order-detail' order.pk %}" role="button">Ver pedido</a>
+              </div>
+            </div>
           </div>
-          <div class="card-footer text-muted">
-            <b>Valor total {{order.get_total}}</b>
-            <a class="btn btn-outline-success float-right" href="{% url 'cart:order-detail' order.pk %}" role="button">Ver pedido</a>
-          </div>
-        </div>
       {% endfor %}
+      </div>
     </div>
 </div>
     

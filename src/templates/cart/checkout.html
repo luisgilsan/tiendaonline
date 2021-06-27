@@ -1,5 +1,6 @@
 {% extends 'base.html'%}
 {% load crispy_forms_tags %}
+{% load humanize %}
 {% block content %}
 
 <div class="bg-light py-3">
@@ -69,17 +70,17 @@
                                                 <strong class="mx-2">x</strong> {{ item.quantity}}
                                             </td>
                                             <td>
-                                                ${{item.get_total_item_price}}
+                                                ${{item.get_total_item_price|intcomma}}
                                             </td>
                                         </tr>
                                         {% endfor%}
                                         <tr>
                                             <td><strong>Subtotal</strong></td>
-                                            <td><strong>${{ order.get_subtotal }}</strong></td>
+                                            <td><strong>${{ order.get_subtotal|intcomma }}</strong></td>
                                         </tr>
                                         <tr>
                                             <td><strong>Total</strong></td>
-                                            <td><strong class="text-back font-weight-bold">${{ order.get_total }}</strong></td>
+                                            <td><strong class="text-back font-weight-bold">${{ order.get_total|intcomma }}</strong></td>
                                         </tr>
                                     </tbody>
                                 </table>
