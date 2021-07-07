@@ -214,6 +214,7 @@ class PaymentView(LoginRequiredMixin,generic.FormView):
     def get_context_data(self, **kwargs):
         context = super(PaymentView,self).get_context_data(**kwargs)
         urlpay = URLPRODUCTION if settings.PRODUCTION else URLTEST
+        # urlpay = URLTEST
         context["PAYPAL_CLIENT_ID"] = settings.PAYPAL_CLIENT_ID
         context["CALLBACK_URL"] = reverse("cart:thanks-you")
         context["order"] = get_or_set_order_session(self.request)

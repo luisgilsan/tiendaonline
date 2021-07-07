@@ -20,9 +20,13 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
-PRODUCTION = False
 
-SET_DB_PRODUCTION = True
+# PAYU MODE
+PRODUCTION = True
+# DB
+SET_DB_PRODUCTION = False
+# 503 MODE
+MAINTENANCE_MODE = None
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -53,6 +57,7 @@ PAYPAL_SECRET_KEY = env('PAYPAL_SANDBOX_SECRET_KEY')
 # Application definition
 
 INSTALLED_APPS = [
+    #Frame
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,15 +65,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    # allAuth apps
+    #AllAuth apps
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
+    #Proyect apps
     'cart',
     'crispy_forms',
     'core',
+    #Util apps
+    'maintenance_mode',
     'sequences.apps.SequencesConfig',
 ]
 
@@ -81,6 +88,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'maintenance_mode.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'store.urls'
@@ -96,6 +104,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'maintenance_mode.context_processors.maintenance_mode',
             ],
         },
     },
@@ -120,12 +129,12 @@ if SET_DB_PRODUCTION:
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'reparacionesss',
-            'USER': 'postgres',
-            'PASSWORD': 'root',
-            'HOST': '127.0.0.1',
-            'PORT': '5432',
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'luisgilsan$reparaciones_2021_06_28',
+            'USER': 'luisgilsan',
+            'PASSWORD': 'reparacionesss2021',
+            'HOST': 'luisgilsan.mysql.pythonanywhere-services.com',
+            'PORT': '3306',
         }
     }
 

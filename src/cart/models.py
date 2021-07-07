@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import pre_save
 from django.utils.text import slugify
 from django.shortcuts import reverse
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from datetime import datetime
 from sequences import get_next_value
 from datetime import datetime, timedelta
@@ -64,8 +64,8 @@ class Brand(models.Model):
         verbose_name_plural = 'Marcas'
 
 class DataSheet(models.Model):
-    name = models.CharField(max_length=100)
-    value = models.CharField(max_length=255)
+    name = models.CharField(max_length=100, verbose_name="Dato")
+    value = models.CharField(max_length=255, verbose_name="Valor")
     product_id = models.ForeignKey("Product", related_name='datasheet_lines', on_delete=models.CASCADE,blank=True,null=True)
 
     def __str__(self):
@@ -116,6 +116,16 @@ class SizeVariation(models.Model):
     
     def __str__(self):
         return   self.name
+
+class ProductImage(models.Model):
+
+    product = models.ForeignKey("Product", related_name='images',on_delete=models.CASCADE)
+    secuence = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10000)],default=0)
+    image = models.ImageField(upload_to='product_images', verbose_name="Imagen")
+
+    class Meta:
+        verbose_name_plural = 'Imagen'
+        verbose_name_plural = 'Imagenes'
         
 class Product(models.Model):
     title = models.CharField(max_length=50)

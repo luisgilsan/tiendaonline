@@ -10,7 +10,8 @@ from .models import (
     Payment,
     Category,
     DataSheet,
-    Brand
+    Brand,
+    ProductImage
     )
 
 class AddressAdmin(admin.ModelAdmin):
@@ -22,7 +23,16 @@ class AddressAdmin(admin.ModelAdmin):
         'address_type'
     ]   
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+
+class DataSheetInline(admin.TabularInline):
+    model = DataSheet
+    extra = 1
+
 class ProductAdmin(admin.ModelAdmin):
+    inlines = [ProductImageInline,DataSheetInline]
     list_display = [        
         'title',
         'descripcion',
@@ -32,7 +42,7 @@ class ProductAdmin(admin.ModelAdmin):
     readonly_fields = ['created', 'update']
 
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('created_at', 'updated_at', )
+    readonly_fields = ('created_at', 'updated_at',)
 
 class DataSheetAdmin(admin.ModelAdmin):
     search_fields = ['product_id__title']

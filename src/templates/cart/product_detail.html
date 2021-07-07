@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
 <div class="bg-light py-3">
     <div class="container">
         <div class="row">
@@ -16,10 +20,30 @@
 <div class="site-section">
     <div class="container">
         <div class="row mb-5">
-            <div class="col-md-6">
-                <div data-aos='fade-up' class="col-md-10 offset-md-1">
-                    <a><img src="{{ product.image.url }}" class="img-fluid"></a>
+            <div class="col-md-6 text-center">
+                <div class="d-flex">
+                    <div class="card" data-aos='fade-up'>
+                        <div class="d-flex flex-column thumbnails">
+                            <div id="f0" class="tb tb-active"> <img class="thumbnail-img fit-image" src="{{ product.image.url }}"> </div>
+
+                           
+                            {% for data in product.images.all%}  
+                                <div id="f{{ forloop.counter }}" class="tb"> <img class="thumbnail-img fit-image" src="{{data.image.url}}"> </div>
+                            {% endfor %}
+                        </div>
+    
+                        <fieldset id="f01" class="active">
+                            <div class="product-pic"> <img class="pic0" src="{{ product.image.url }}"> </div>
+                        </fieldset>
+    
+                        {% for data in product.images.all%}  
+                            <fieldset id="f{{ forloop.counter }}1" class="">
+                                <div class="product-pic"> <img class="pic0" src="{{data.image.url}}"> </div>
+                            </fieldset>
+                        {% endfor %}
+                    </div>
                 </div>
+                <br>
                 <p>{{product.descripcion}}</p>
                 
             </div>
@@ -41,8 +65,7 @@
                     <table class="table table-striped">
                         <thead>
                           <tr>
-                            <th scope="col"  >FICHA TÉCNICA</th>
-                            <th scope="col"  >FICHA TÉCNICA</th>
+                            <th scope="col" colspan="2"  >FICHA TÉCNICA</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -63,6 +86,106 @@
 
         </div>
     </div>
+
+    <style>
+        .card {
+            margin: auto;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 50px;
+            margin-bottom: 50px
+        }
+
+        fieldset.active {
+            display: block !important
+        }
+
+        fieldset {
+            display: none
+        }
+
+        .pic0 {
+            width: 400px;
+            height: 500px;
+            margin-left: 85px;
+            margin-right: auto;
+            display: block
+        }
+
+        .product-pic {
+            padding-left: auto;
+            padding-right: auto;
+            width: 100%
+        }
+
+        .thumbnails {
+            position: absolute
+        }
+
+        .fit-image {
+            width: 100%;
+            object-fit: cover
+        }
+
+        .tb {
+            width: 62px;
+            height: 62px;
+            border: 1px solid grey;
+            margin: 2px;
+            opacity: 0.4;
+            cursor: pointer
+        }
+
+        .tb-active {
+            opacity: 1
+        }
+
+        .thumbnail-img {
+            width: 60px;
+            height: 60px
+        }
+
+        @media screen and (max-width: 768px) {
+            .pic0 {
+                width: 250px;
+                height: 350px
+            }
+        }
+    </style>
+
+    <script>
+        $(document).ready(function(){
+
+        $(".tb").hover(function(){
+
+        $(".tb").removeClass("tb-active");
+        $(this).addClass("tb-active");
+
+        current_fs = $(".active");
+
+        next_fs = $(this).attr('id');
+        next_fs = "#" + next_fs + "1";
+
+        $("fieldset").removeClass("active");
+        $(next_fs).addClass("active");
+
+        current_fs.animate({}, {
+        step: function() {
+        current_fs.css({
+        'display': 'none',
+        'position': 'relative'
+        });
+        next_fs.css({
+        'display': 'block'
+        });
+        }
+        });
+        });
+
+        });
+    </script>
+
+
 </div>
 
 

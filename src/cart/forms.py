@@ -38,7 +38,8 @@ class AddressForm(forms.Form):
     shipping_city = forms.CharField(required=False, label="Código postal")
 
     selected_shipping_address = forms.ModelChoiceField(
-        Address.objects.none(),required=False
+        Address.objects.none(),required=False,
+        label="Direcciónes guardadas"
     )
 
     def __init__(self, *args, **kwargs):
@@ -116,8 +117,8 @@ class PayUForm(forms.Form):
         self.fields['signature'].initial = h.hexdigest()
         self.fields['test'].initial = 1
         self.fields['buyerEmail'].initial = user.email
-        self.fields['responseUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/response-payu/'
-        self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
+        self.fields['responseUrl'].initial = 'https://luisgilsan.pythonanywhere.com/cart/response-payu/'
+        self.fields['confirmationUrl'].initial = 'https://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
         order.sended_signature = self.fields['signature'].initial
         order.sender_reference = self.fields['referenceCode'].initial
         order.user = user
@@ -145,8 +146,8 @@ class PayUForm(forms.Form):
         self.fields['signature'].initial = h.hexdigest()
         self.fields['test'].initial = 0
         self.fields['buyerEmail'].initial = user.email
-        self.fields['responseUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/response-payu/'
-        self.fields['confirmationUrl'].initial = 'http://luisgilsan.pythonanywhere.com/cart/confirm-payu/'
+        self.fields['responseUrl'].initial = 'http://reparacionesss.com/cart/response-payu/'
+        self.fields['confirmationUrl'].initial = 'http://reparacionesss.com/cart/confirm-payu/'
         order.sended_signature = self.fields['signature'].initial
         order.sender_reference = self.fields['referenceCode'].initial
         order.user = user
