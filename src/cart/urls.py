@@ -17,5 +17,6 @@ urlpatterns = [
     path('response-payu/', views.ResponsePayUView.as_view(),name='response-payu'),
     path('confirm-payu/', views.ConfirmPayUView.as_view(),name='confirm-payu'),
     path('orders-list/', views.OrderList.as_view(),name='orders-list'),
+    path('orders-pending/', views.OrderPendingView.as_view(),name='orders-pending'),
     path('order/<int:pk>/', views.OrderDetail.as_view(),name='order-detail'),
 ]

@@ -53,6 +53,13 @@ ORDER_STATES = (
     ('paid','Pagado'),
 )
 
+DELIVERY_STATES = (
+    ('received','Recibido'),
+    ('prepared','Preparado'),
+    ('sent','Enviado'),
+    ('delivered','Entregado'),
+)
+
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -201,7 +208,7 @@ class Order(models.Model):
     payu_payment_id = models.ForeignKey("PayuPayment",related_name='order_id',on_delete=models.SET_NULL,
         blank=True,null=True)
     state = models.CharField(max_length=20, choices=ORDER_STATES, default='draft')
-    
+    delivery_status = models.CharField(max_length=20, choices=DELIVERY_STATES, default='received')
 
     def __str__(self):
         return self.reference_number

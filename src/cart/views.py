@@ -111,12 +111,24 @@ class OrderList(LoginRequiredMixin,generic.TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(OrderList,self).get_context_data(**kwargs)
-        orders = Order.objects.filter(user_id=self.request.user)
+        orders = Order.objects.filter(user_id=self.request.user,state__in=['pending','paid'])
         context["orders"] = orders
         return context
 
     def get_success_url(self):
         return reverse("cart:orders-list")
+
+class OrderPendingView(LoginRequiredMixin,generic.TemplateView):
+    template_name = 'cart/order_pending.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(OrderPendingView,self).get_context_data(**kwargs)
+        orders = Order.objects.filter(state__in=['pending','paid'])
+        context["orders"] = orders
+        return context
+
+    def get_success_url(self):
+        return reverse("cart:orders-pending")
 
 class OrderDetail(LoginRequiredMixin,generic.TemplateView):
     template_name = 'cart/order_detail.html'
